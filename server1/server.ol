@@ -1,13 +1,15 @@
 include "console.iol"
+include "../server_utilities/interface/toServer.iol"
 
-inputPort fromClient {
-	Interfaces: 
+inputPort FromClient {
+	Interfaces: ToServerInterface
+
 }
 
 init
 {
   	//cambiare queste righe per definire il server
 
-  	fromClient.Location = "";
-  	fromClient.Protocol = "sodep";
+  	FromClient.Location = "socket://localhost:8000";
+  	FromClient.Protocol = "sodep";
 }
