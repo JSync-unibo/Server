@@ -101,7 +101,7 @@ main
 	} ] { println@Console( responseMessage )() }
 
 
-	[sendFile( file ) ] {
+	[ sendFile( file ) ] {
 
 		with( file ){
 
@@ -112,7 +112,38 @@ main
 		writeFile@File(file)();
 
 		println@Console( " Ricevuto: "+file.filename+"\n" )()
-
-
 	}
+
+	[ delete(message)(responseMessage) {
+
+		repo.directory = "repo/";
+
+  		list@File(repo)(risposta);
+
+  		trovato = false;
+
+  		//stampa tutte le repositories contenute nel server
+  		for(i = 0, i < #risposta.result, i++) {
+
+  			if(message.repoName == risposta.result[i]) {
+
+  				deleteDir@File("repo/"+risposta.result[i])(deleted);
+
+  				trovato = true
+  			}
+  		};
+
+  		if(trovato) {
+
+  			responseMessage.error = false;
+	  		responseMessage.message = "Repository eliminata \n"
+  		}
+
+  		else {
+  			responseMessage.error = true;
+  			responseMessage.message = "Directory non trovata"
+  		}
+
+	}] { println@Console( responseMessage )() }
+
 }
