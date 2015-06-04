@@ -51,17 +51,18 @@ main
   		//stampa tutte le repositories contenute nel server
   		for(i = 0, i < #risposta.result, i++) {
 
-  			responseMessage += risposta.result[i] + " "
+  			responseMessage += risposta.result[i] + " ";
 
-  			/*isDirectory@File(risposta.result[i])(dir);
+  			repo2.directory = repo.directory + risposta.result[i];
   			
-  			if(dir) {
+  			list@File(repo2)(res);
 
-  				list@File(risposta.result[i])(sottoDir);
-  				for(j = 0, j < #sottoDir.result, j++) 
-  					responseMessage += sottoDir.result[j] + " "
-  			}*/
-	  	}
+  				for(j = 0, j < #res.result, j++) {
+  					
+  					responseMessage += res.result[j] + " "
+  				}
+	    }
+	  	
 
 		//println@Console( risposta )();isDirectory(risposta.result[i])
 
