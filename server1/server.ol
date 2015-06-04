@@ -62,27 +62,32 @@ main
 	 */
 	[ listRepo(message)(responseMessage) {
 
-		undef( responseMessage );
-
 		repo.directory = serverRepo;
 
   		list@File(repo)(risposta);
 
   		
-  		//stampa tutte le repositories contenute nel server
-  		for(i = 0, i < #risposta.result, i++) {
+  		if( is_defined( risposta.result ) ){
 
-  			responseMessage += risposta.result[i] + " / ";
+	  		//stampa tutte le repositories contenute nel server
+	  		for(i = 0, i < #risposta.result, i++) {
 
-  			repo2.directory = repo.directory + risposta.result[i];
-  			
-  			list@File(repo2)(res);
+	  			responseMessage += "    " + risposta.result[i]+"\n"
 
-  				for(j = 0, j < #res.result, j++) {
-  					
-  					responseMessage += res.result[j] + "\n"
-  				}
-	    }
+	  			/*
+	  			repo2.directory = repo.directory + risposta.result[i];
+	  			
+	  			list@File(repo2)(res);
+
+	  				for(j = 0, j < #res.result, j++) {
+	  					
+	  					responseMessage += "    " + res.result[j] + "\n"
+	  				}
+	  			*/
+		    }
+		}
+		else
+			responseMessage = " Non ci sono repositories\n"
 	  	
 
 		//println@Console( risposta )();isDirectory(risposta.result[i])
