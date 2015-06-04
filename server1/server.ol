@@ -12,6 +12,10 @@ inputPort FromClient {
 
 execution{ concurrent }
 
+constants {
+	serverRepo = "serverRepo"
+}
+
 main
 {
 
@@ -28,7 +32,7 @@ main
 		undef( responseMessage );
 
 		//controlla se la repo non sia già stata creata
-		exists@File("repo/"+message.repoName)(exist);
+		exists@File(serverRepo+"/"+message.repoName)(exist);
 
 		//se esiste già la cartella
 		//c'è un errore
@@ -44,7 +48,7 @@ main
 			/*root.from = "LocalRepo/"+message.localPath;
 			root.to = "repo/"+message.repoName;
 			copyDir@File(root)();*/
-			mkdir@File("repo/"+message.repoName)();
+			mkdir@File(serverRepo+"/"+message.repoName)();
 
 			responseMessage.error = false;
 			responseMessage.message = " Successo\n"
@@ -60,7 +64,7 @@ main
 
 		undef( responseMessage );
 
-		repo.directory = "repo/";
+		repo.directory = serverRepo;
 
   		list@File(repo)(risposta);
 
@@ -101,11 +105,14 @@ main
 	} ] { println@Console( responseMessage )() }
 
 
+	/*
+	 * OneWay che aspetta un file e lo scrive nella nuova repository
+	 */
 	[ sendFile( file ) ] {
 
 		with( file ){
 
-		  .filename = "repo/"+ .filename
+		  .filename = serverRepo+"/"+ .filename
 
 		};
 		
@@ -114,9 +121,13 @@ main
 		println@Console( " Ricevuto: "+file.filename+"\n" )()
 	}
 
+
+	/*
+	 * Cancella una repository salvata sul server
+	 */
 	[ delete(message)(responseMessage) {
 
-		repo.directory = "repo/";
+		repo.directory = serverRepo;
 
   		list@File(repo)(risposta);
 
@@ -127,7 +138,7 @@ main
 
   			if(message.repoName == risposta.result[i]) {
 
-  				deleteDir@File("repo/"+risposta.result[i])(deleted);
+  				deleteDir@File(serverRepo+"/"+risposta.result[i])(deleted);
 
   				trovato = true
   			}
