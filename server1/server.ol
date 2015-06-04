@@ -43,15 +43,42 @@ main
 
 		undef( responseMessage );
 
-		println@Console( "arrivato mexx" )();
+		repo.directory = "repo/";
 
-		prova.directory = "repo";
+  		list@File(repo)(risposta);
 
-  		list@File(prova)(risposta);
+  		
+  		//stampa tutte le repositories contenute nel server
+  		for(i = 0, i < #risposta.result, i++) {
 
-		println@Console( risposta )();
+  			responseMessage += risposta.result[i] + " "
 
-		valueToPrettyString@StringUtils(risposta)(responseMessage)
+  			/*isDirectory@File(risposta.result[i])(dir);
+  			
+  			if(dir) {
+
+  				list@File(risposta.result[i])(sottoDir);
+  				for(j = 0, j < #sottoDir.result, j++) 
+  					responseMessage += sottoDir.result[j] + " "
+  			}*/
+	  	}
+
+		//println@Console( risposta )();isDirectory(risposta.result[i])
+
+		//valueToPrettyString@StringUtils(risposta)(responseMessage)
+
+		/*for(i = 0, i < #risposta.directory, i++) {
+
+			response += risposta.directory[i] + " "
+			/*isDirectory@File( risposta.result[i] )( dir );
+			if( dir ) {
+
+				for(j = 0, j < #risposta.result[i], j++) {
+
+					responseMessage += risposta.result[i].result[j]
+				}
+			}
+		}*/
 
 	} ] { println@Console( responseMessage )() }
 }
