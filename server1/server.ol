@@ -15,6 +15,14 @@ execution{ concurrent }
 main
 {
 
+	/*
+	 * Viene inviato un messaggio con repoName e localPath
+	 * 
+	 * Controlla se la repository non esista già
+	 * in caso esiste, non la crea e da' errore
+	 *
+	 * Se non esiste crea la cartella e torna un boolean
+	 */
 	[ addRepository(message)(responseMessage) {
 
 		undef( responseMessage );
@@ -44,6 +52,10 @@ main
 
 	} ] { println@Console(responseMessage.message)() } 
 
+	/*
+
+	   Lista delle repository
+	 */
 	[ listRepo(message)(responseMessage) {
 
 		undef( responseMessage );
