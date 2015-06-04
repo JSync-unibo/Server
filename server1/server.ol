@@ -8,6 +8,7 @@ inputPort FromClient {
 	Location: "socket://localhost:4000"
   	Protocol: sodep
 	Interfaces: ToServerInterface
+	RequestResponse: getFile( FileRequestType )( raw )
 
 }
 
@@ -32,6 +33,9 @@ main
 		//se la cartella non esisteva la crea
 		else{
 
+			/*root.from = "LocalRepo/"+message.localPath;
+			root.to = "repo/"+message.repoName;
+			copyDir@File(root)();*/
 			mkdir@File("repo/"+message.repoName)();
 			responseMessage.message = " Successo\n";
 			responseMessage.error = false
@@ -82,4 +86,12 @@ main
 		}*/
 
 	} ] { println@Console( responseMessage )() }
+
+
+	[ getFile( file )( response ){
+  		//file.filename = "repo/ciao/ciao.txt";
+		println@Console( file.filename )();
+  		file.format = format = "binary";
+  		readFile@File( file )( response ) 
+  } ] { println@Console( "File copiato" )() }
 }
