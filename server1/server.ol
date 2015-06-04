@@ -136,12 +136,12 @@ main
   		if(trovato) {
 
   			responseMessage.error = false;
-	  		responseMessage.message = "Repository eliminata \n"
+	  		responseMessage.message = " Repository eliminata \n"
   		}
 
   		else {
   			responseMessage.error = true;
-  			responseMessage.message = "Directory non trovata"
+  			responseMessage.message = " Directory non trovata \n"
   		}
 
 	}] { println@Console( responseMessage )() }
