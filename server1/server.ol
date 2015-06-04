@@ -55,7 +55,7 @@ main
   		//stampa tutte le repositories contenute nel server
   		for(i = 0, i < #risposta.result, i++) {
 
-  			responseMessage += risposta.result[i] + " ";
+  			responseMessage += risposta.result[i] + " / ";
 
   			repo2.directory = repo.directory + risposta.result[i];
   			
@@ -63,7 +63,7 @@ main
 
   				for(j = 0, j < #res.result, j++) {
   					
-  					responseMessage += res.result[j] + " "
+  					responseMessage += res.result[j] + "\n"
   				}
 	    }
 	  	
