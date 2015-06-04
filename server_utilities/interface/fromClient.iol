@@ -12,6 +12,7 @@ type ToServerType: void{
 
 type FileRequestType: void {
   .filename: string
+  .content: raw
 }
 
 
@@ -36,4 +37,6 @@ interface ToServerInterface {
                     push(ToServerType)(ResponseMessage),
                     pull(ToServerType)(ResponseMessage),
                     delete(ToServerType)(ResponseMessage)
+
+    OneWay: sendFile( FileRequestType )
 }

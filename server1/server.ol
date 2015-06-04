@@ -8,8 +8,6 @@ inputPort FromClient {
 	Location: "socket://localhost:4000"
   	Protocol: sodep
 	Interfaces: ToServerInterface
-	RequestResponse: getFile( FileRequestType )( raw )
-
 }
 
 execution{ concurrent }
@@ -18,6 +16,8 @@ main
 {
 
 	[ addRepository(message)(responseMessage) {
+
+		undef( responseMessage );
 
 		//controlla se la repo non sia già stata creata
 		exists@File("repo/"+message.repoName)(exist);
@@ -37,8 +37,9 @@ main
 			root.to = "repo/"+message.repoName;
 			copyDir@File(root)();*/
 			mkdir@File("repo/"+message.repoName)();
-			responseMessage.message = " Successo\n";
-			responseMessage.error = false
+
+			responseMessage.error = false;
+			responseMessage.message = " Successo\n"
 		}
 
 	} ] { println@Console(responseMessage.message)() } 
@@ -88,10 +89,18 @@ main
 	} ] { println@Console( responseMessage )() }
 
 
-	[ getFile( file )( response ){
-  		//file.filename = "repo/ciao/ciao.txt";
-		println@Console( file.filename )();
-  		file.format = format = "binary";
-  		readFile@File( file )( response ) 
-  } ] { println@Console( "File copiato" )() }
+	[sendFile( file ) ] {
+
+		with( file ){
+
+		  .filename = "repo/"+ .filename
+
+		};
+		
+		writeFile@File(file)();
+
+		println@Console( " Ricevuto: "+file.filename+"\n" )()
+
+
+	}
 }
