@@ -1,5 +1,5 @@
 include "console.iol"
-include "../server_utilities/interface/FromClient.iol"
+include "../server_utilities/interface/fromClient.iol"
 include "file.iol"
 include "string_utils.iol"
 include "types/Binding.iol"
