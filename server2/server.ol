@@ -5,7 +5,7 @@ include "string_utils.iol"
 include "types/Binding.iol"
 
 inputPort FromClient {
-	Location: "socket://localhost:4000"
+	Location: "socket://localhost:5000"
   	Protocol: sodep
 	Interfaces: ToServerInterface
 }
