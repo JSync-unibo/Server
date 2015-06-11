@@ -169,10 +169,35 @@ main
 	}] { println@Console( responseMessage )() }
 
 
-	/*
+	
 	[ push(message)(responseMessage){
 
+		undef( responseMessage );
 
-	}] {}
-	*/
+		println@Console( message.repoName )();
+		//controlla se la repo non sia già stata creata
+		exists@File(serverRepo+"/"+message.repoName)(exist);
+
+		if(exist){
+
+			// Preparazione del file di versione
+  			toSend.filename = serverRepo+"/"+message.repoName+"/vers.txt";
+  			toSend.content = "0.1";
+
+  			writeFile@File(toSend)();
+
+			responseMessage.error = false;
+			responseMessage.message = " Success, repository created.\n"
+		}
+
+		else {
+
+			responseMessage.error = true;
+			responseMessage.message = " Error, "+message.repoName+" don't exist.\n"
+		}
+
+
+
+	}] { println@Console(responseMessage.message)();undef( toSend ) }
+	
 }
