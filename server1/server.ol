@@ -162,4 +162,9 @@ main
 
 	}] { println@Console( responseMessage )() }
 
+
+	[ push(message)(responseMessage){
+
+
+	}] {}
 }
