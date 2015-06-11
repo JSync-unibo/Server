@@ -50,11 +50,17 @@ main
 			copyDir@File(root)();*/
 			mkdir@File(serverRepo+"/"+message.repoName)();
 
+			// Preparazione del file di versione
+  			toSend.filename = serverRepo+"/"+message.repoName+"/vers.txt";
+  			toSend.content = "0.1";
+
+  			writeFile@File(toSend)();
+
 			responseMessage.error = false;
 			responseMessage.message = " Success, repository created.\n"
 		}
 
-	} ] { println@Console(responseMessage.message)() } 
+	} ] { println@Console(responseMessage.message)();undef( toSend ) } 
 
 	/*
 
@@ -163,8 +169,10 @@ main
 	}] { println@Console( responseMessage )() }
 
 
+	/*
 	[ push(message)(responseMessage){
 
 
 	}] {}
+	*/
 }
