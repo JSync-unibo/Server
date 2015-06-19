@@ -225,10 +225,12 @@ main
 
 	}] { println@Console(responseMessage.message)();undef( vers ) }
 
+	/*
 	[ push(vers)(responseMessage){
 
 		
 
 	}] { println@Console(responseMessage.message)();undef( vers ) }
+	*/
 	
 }
