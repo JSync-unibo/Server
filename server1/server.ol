@@ -52,7 +52,7 @@ main
 
 			// Preparazione del file di versione
   			toSend.filename = serverRepo+"/"+message.repoName+"/vers.txt";
-  			toSend.content = "0.1";
+  			toSend.content = 0.1;
 
   			writeFile@File(toSend)();
 
@@ -123,13 +123,24 @@ main
 
 		with( file ) {
 
-			// percorso delle cartelle nel server in cu salvare il file
-			.filename = serverRepo + "/" + .folder + "/" + .filename;
+			// percorso delle cartelle nel server in cui salvare il file
+			.filename = serverRepo + "/" +.folder+ "/"+ .filename;
 			// viene rimosso il parametro folder per il writeFile
 			undef( .folder )
 		};
 
-		writeFile@File(file)();
+		if(file.filename == serverRepo + "/" + file.folder+ "/"+ "vers.txt") {
+
+			file.content++;
+
+			writeFile@File(file)()
+
+		}
+
+		else {
+
+			writeFile@File(file)()
+		};
 
 		println@Console( " Ricevuto: "+file.filename+"\n" )()
 	}
@@ -182,14 +193,8 @@ main
 
 		if(exist){
 
-			// Preparazione del file di versione
-  			toSend.filename = serverRepo+"/"+message.repoName+"/vers.txt";
-  			toSend.content = "0.1";
-
-  			writeFile@File(toSend)();
-
 			responseMessage.error = false;
-			responseMessage.message = " Success, repository created.\n"
+			responseMessage.message = " Success.\n"
 		}
 
 		else {
