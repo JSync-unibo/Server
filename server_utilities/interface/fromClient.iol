@@ -12,7 +12,7 @@ type ToServerType: void{
 
 type FileRequestType: void {
   .filename: string
-  .content: raw
+  .content?: raw
   //aggiunto parametro folder opzionale
   .folder?: string
 }

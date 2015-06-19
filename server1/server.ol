@@ -189,14 +189,14 @@ main
 	
 	[ push(vers)(responseMessage){
 
-		undef( responseMessage );
-
 		with( file ) {
 
 			// percorso delle cartelle nel server in cui salvare il file
-			.filename = serverRepo + "/" + .folder+ "/"+ "vers.txt";
+			.filename = serverRepo + "/" + vers.folder+ "/"+ "vers.txt";
 			.format = "binary"
 		};
+
+		println@Console( file.filename )();
 
 		readFile@File(file)(readed.content);
 
@@ -205,7 +205,7 @@ main
 		if( vers.content == readed.content) {
 			
 			// viene rimosso il parametro folder per il writeFile
-			undef( file.folder );
+			undef( vers.folder );
 
 			file.content++;	
 
