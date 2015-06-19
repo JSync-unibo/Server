@@ -121,12 +121,14 @@ main
 	 */
 	[ sendFile( file ) ] {
 
-		with( file ){
+		with( file ) {
 
-		  .filename = serverRepo+"/"+ .filename
-
+			// percorso delle cartelle nel server in cu salvare il file
+			.filename = serverRepo + "/" + .folder + "/" + .filename;
+			// viene rimosso il parametro folder per il writeFile
+			undef( .folder )
 		};
-		
+
 		writeFile@File(file)();
 
 		println@Console( " Ricevuto: "+file.filename+"\n" )()
