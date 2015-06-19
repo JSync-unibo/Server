@@ -219,9 +219,15 @@ main
 		else {
 
 			responseMessage.error = true;
-			responseMessage.message = " Error, "+message.repoName+" don't exist.\n"
+			responseMessage.message = " Error, need to upgrade the repo  .\n"
 		}
 
+
+	}] { println@Console(responseMessage.message)();undef( vers ) }
+
+	[ push(vers)(responseMessage){
+
+		
 
 	}] { println@Console(responseMessage.message)();undef( vers ) }
 	
