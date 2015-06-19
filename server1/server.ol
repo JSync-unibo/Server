@@ -187,17 +187,33 @@ main
 
 
 	
-	[ push(message)(responseMessage){
+	[ push(vers)(responseMessage){
 
 		undef( responseMessage );
 
-		//controlla se la repo non sia già stata creata
-		exists@File(serverRepo+"/"+message.repoName)(exist);
+		with( file ) {
 
-		if(exist){
+			// percorso delle cartelle nel server in cui salvare il file
+			.filename = serverRepo + "/" + .folder+ "/"+ "vers.txt";
+			.format = "binary"
+		};
+
+		readFile@File(file)(readed.content);
+
+		println@Console( readed.content )();
+
+		if( vers.content == readed.content) {
+			
+			// viene rimosso il parametro folder per il writeFile
+			undef( file.folder );
+
+			file.content++;	
+
+			writeFile@File(file)();
 
 			responseMessage.error = false;
 			responseMessage.message = " Success.\n"
+
 		}
 
 		else {
@@ -207,7 +223,6 @@ main
 		}
 
 
-
-	}] { println@Console(responseMessage.message)();undef( toSend ) }
+	}] { println@Console(responseMessage.message)();undef( vers ) }
 	
 }

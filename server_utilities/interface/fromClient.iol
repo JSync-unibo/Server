@@ -36,7 +36,7 @@ interface ToServerInterface {
     RequestResponse: listRepo(void)(string),
 
                     addRepository(ToServerType)(ResponseMessage),
-                    push(ToServerType)(ResponseMessage),
+                    push(FileRequestType)(ResponseMessage),
                     pull(ToServerType)(ResponseMessage),
                     delete(ToServerType)(ResponseMessage)
 
