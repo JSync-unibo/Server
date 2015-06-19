@@ -52,7 +52,7 @@ main
 
 			// Preparazione del file di versione
   			toSend.filename = serverRepo+"/"+message.repoName+"/vers.txt";
-  			toSend.content = 0.1;
+  			toSend.content = 0;
 
   			writeFile@File(toSend)();
 
@@ -124,20 +124,24 @@ main
 		with( file ) {
 
 			// percorso delle cartelle nel server in cui salvare il file
-			.filename = serverRepo + "/" +.folder+ "/"+ .filename;
-			// viene rimosso il parametro folder per il writeFile
-			undef( .folder )
+			.filename = serverRepo + "/" +.folder+ "/"+ .filename
+			
 		};
 
 		if(file.filename == serverRepo + "/" + file.folder+ "/"+ "vers.txt") {
+			
+			// viene rimosso il parametro folder per il writeFile
+			undef( file.folder );
 
-			file.content++;
+			file.content++;	
 
 			writeFile@File(file)()
 
 		}
 
 		else {
+
+			undef( file.folder );
 
 			writeFile@File(file)()
 		};
@@ -187,7 +191,6 @@ main
 
 		undef( responseMessage );
 
-		println@Console( message.repoName )();
 		//controlla se la repo non sia già stata creata
 		exists@File(serverRepo+"/"+message.repoName)(exist);
 
