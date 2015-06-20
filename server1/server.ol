@@ -232,11 +232,9 @@ main
 		with( file ) {
 
 			// percorso delle cartelle nel server in cui salvare il file
-			.filename = serverRepo + "/" + vers.folder+ "/"+ "vers.txt";
+			.filename = serverRepo+ "/" + vers.filename;
 			.format = "binary"
 		};
-
-		println@Console( file.filename )();
 
 		readFile@File(file)(readed.content);
 
@@ -245,11 +243,13 @@ main
 		if( vers.content == readed.content) {
 			
 			// viene rimosso il parametro folder per il writeFile
-			undef( vers.folder );
+			//undef( vers.folder );
 
-			file.content++;	
+			readed.content++;
 
-			writeFile@File(file)();
+			readed.filename = file.filename;	
+
+			writeFile@File(readed)();
 
 			responseMessage.error = false;
 			responseMessage.message = " Success.\n"
