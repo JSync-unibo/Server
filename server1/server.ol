@@ -120,13 +120,52 @@ main
 	 * OneWay che aspetta un file e lo scrive nella nuova repository
 	 */
 	[ sendFile( file ) ] {
+		
+		println@Console( " Ricevuto: "+file.filename+"\n" )();
 
+		with( file ){
+		  
+		  	.filename = "ServerRepo/"+.filename
+		};
+
+		// scrive il file
+		scope( FileNotFoundException )
+		{
+			//se manca una cartella nel percorso
+		  	install( IOException => 
+
+		  		//splitta tutto il percorso
+		  		toSplit = file.filename;
+		  		toSplit.regex = "/";
+
+		  		split@StringUtils(toSplit)(splitResult);
+
+		  		//per ogni cartella nel percorso
+		  		//tranne per il file
+		  		for( i=0, i<#splitResult.result-1, i++)
+		  		{
+		  			//la crea se non esiste
+		  			dir += splitResult.result[i] +"/";
+		  			mkdir@File(dir)()
+		  		};
+
+		  		//infine scrive il file
+		  		writeFile@File(file)()
+		  	);
+
+	  		// Prova a scrivere il file
+	  		writeFile@File(file)()
+	  	}
+
+		/*
 		with( file ) {
 
 			// percorso delle cartelle nel server in cui salvare il file
 			.filename = serverRepo + "/" +.folder+ "/"+ .filename
 			
 		};
+
+		
 
 		if(file.filename == serverRepo + "/" + file.folder+ "/"+ "vers.txt") {
 			
@@ -147,6 +186,7 @@ main
 		};
 
 		println@Console( " Ricevuto: "+file.filename+"\n" )()
+		*/
 	}
 
 
