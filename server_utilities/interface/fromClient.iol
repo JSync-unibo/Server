@@ -5,16 +5,15 @@
  */
 type ToServerType: void{
 
-    .serverName: string
     .repoName: string
     .localPath?: string
 }
 
 type FileRequestType: void {
-  .filename: string
-  .content?: raw
-  //aggiunto parametro folder opzionale
-  .folder?: string
+
+    .filename: string
+    .content: string
+    .folder?: string
 }
 
 
@@ -26,19 +25,30 @@ type FileRequestType: void {
 type ResponseMessage: void {
 
     .error: bool
-    .message: string
+    .message?: string
+
+    .folderStructure?:void{ 
+
+        .file*:string
+    }
 }
 
 
 //Interfaccia fra il client ed il server
 interface ToServerInterface { 
 
-    RequestResponse: listRepo(void)(string),
+    RequestResponse: 
 
-                    addRepository(ToServerType)(ResponseMessage),
-                    push(FileRequestType)(ResponseMessage),
-                    pull(string)(FileRequestType),
-                    delete(ToServerType)(ResponseMessage)
+        listRepo(void)(string),
 
-    OneWay: sendFile( FileRequestType )
+        addRepository(ToServerType)(ResponseMessage),
+        push(FileRequestType)(ResponseMessage),
+        pull(string)(ResponseMessage),
+        delete(ToServerType)(ResponseMessage),
+
+        requestFile(string)(FileRequestType)
+
+    OneWay: 
+    
+        sendFile( FileRequestType )
 }
