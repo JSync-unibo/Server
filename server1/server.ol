@@ -333,7 +333,7 @@ main
 
 		abDirectory = "serverRepo/"+repoName;
 
-		visita;
+		initializeVisita;
 
 		//preparo la risposta
 		with( responseMessage ){
