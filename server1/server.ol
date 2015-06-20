@@ -339,6 +339,7 @@ main
 		with( responseMessage ){
 		  
 		  	.error = false;
+		  	.message = " Success, pull request done.\n";
 		  	.folderStructure << folderStructure
 		};
 		
