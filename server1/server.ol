@@ -179,7 +179,7 @@ main
 	 */
 	[ sendFile( file ) ] {
 		
-		println@Console( " Ricevuto: "+file.filename+"\n" )();
+		println@Console( " Received : "+file.filename+"\n" )();
 
 		with( file ){
 		  
