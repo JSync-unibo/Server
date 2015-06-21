@@ -17,7 +17,7 @@ execution{ concurrent }
 
 constants 
 {
-	serverRepo = "serverRepo"
+	serverRepo = "serverRepo/"
 }
 
 init
@@ -41,7 +41,7 @@ main
 
 		undef( responseMessage );
 
-		repoName = serverRepo+"/"+message.repoName;
+		repoName = serverRepo+message.repoName;
 
 		//controlla se la repo non sia già stata creata
 		exists@File(repoName)(exist);
@@ -143,7 +143,7 @@ main
 
   			if(message.repoName == risposta.result[i]) {
 
-  				deleteDir@File(serverRepo+"/"+risposta.result[i])(deleted);
+  				deleteDir@File(serverRepo+risposta.result[i])(deleted);
 
   				trovato = true
   			}
@@ -184,29 +184,8 @@ main
 
 				writeFile@File(file)();
 
-				
 			  	.error = false;
 				.message = " Success.\n"
-
-			/*
-			if( vers.content == readed.content) {
-				
-				file.content = int(file.content) + 1;
-
-				writeFile@File(file)();
-
-				
-			  	.error = false;
-				.message = " Success.\n"
-			}
-			else {
-
-				.error = true;
-				.message = " Error, need to upgrade the repo  .\n"
-			};
-
-			println@Console( file.content )()
-			*/
 		}
 
 	}] { 
@@ -224,7 +203,7 @@ main
 	 */
 	[ pull(repoName)(responseMessage){
 
-		abDirectory = "serverRepo/"+repoName;
+		abDirectory = "/"+repoName;
 
 		initializeVisita;
 
@@ -269,7 +248,7 @@ main
 	[ sendFile( file ) ] {
 		
 		//modifica del percorso 
-		file.filename = "ServerRepo/"+file.filename;
+		file.filename = serverRepo+file.filename;
 
 		//splitto il percorso per /
 		toSplit = file.filename;
