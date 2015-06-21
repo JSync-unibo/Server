@@ -1,3 +1,12 @@
+/*
+*
+* Author => Gruppo LOBSTER
+* Data => 21/06/2015
+* 
+* Server
+*/
+
+// Importazione delle interfacce e servizio relativo alla visita delle repo
 include "console.iol"
 
 include "file.iol"
@@ -7,6 +16,8 @@ include "types/Binding.iol"
 include "../server_utilities/interface/fromClient.iol"
 include "../server_utilities/interface/serverDef.ol"
 
+
+// Porta che collega il server con il client, in attesa di sue richieste
 inputPort FromClient {
 	Location: "socket://localhost:4000"
   	Protocol: sodep
@@ -43,11 +54,10 @@ main
 
 		repoName = serverRepo+"/"+message.repoName;
 
-		//controlla se la repo non sia già stata creata
+		// Controlla se la repo non sia già stata creata
 		exists@File(repoName)(exist);
 
-		//se esiste già la cartella
-		//c'è un errore
+		// Se esiste già la cartella, ritorna un errore
 		if(exist){
 
 			with( responseMessage ){
@@ -57,64 +67,61 @@ main
 			}
 		}
 
-		//se la cartella non esisteva la crea
+		// Se la cartella non esiste la crea
 		else{
 
 			mkdir@File(repoName)();
 
-			// Preparazione del file di versione
+			// Preparazione del file di versione e scrittura
 			with( toSend ){
 			  
 			  	.filename = repoName+"/vers.txt";
 			  	.content = 0;
 
   				writeFile@File(toSend)();
+
   				undef( toSend )
 			};
-			//preparazione del messaggio di ritorno
+
+			// Preparazione del messaggio di ritorno
   			with( responseMessage ){
 
 		  		.error = false;
 		  		.message = " Success, repository created.\n";
 
-		  		println@Console(.message)()
+		  		println@Console( .message )()
 			}
 		}
 
-	} ] { nullProcess } 
+	} ] { 
+
+		println@Console( responseMessage )(); 
+		undef( responseMessage ) 
+
+		}
 
 	/*
-	 *
-	 * ritorna la lita di tutte le repo registrate sul server
-	 * sotto forma di stringa
+	 * Ritorna la lita di tutte le repo registrate sul server
+	 * (sotto forma di stringa)
 	 */
 	[ listRepo()(responseMessage) {
 
-		//lista di tutte le repo del server
+		// Lista di tutte le repo del server
 		repo.directory = serverRepo;
+  		
   		list@File(repo)(risposta);
 
-  		//se ce ne sono
+  		// Se sono presenti
   		if( is_defined( risposta.result ) ){
 
-	  		//stampa tutte le repositories contenute nel server
+	  		// Stampa tutte le repositories contenute nel server
 	  		for(i = 0, i < #risposta.result, i++) {
 
 	  			responseMessage += "       " + risposta.result[i]+"\n"
 
-	  			/*
-	  			repo2.directory = repo.directory + risposta.result[i];
-	  			
-	  			list@File(repo2)(res);
-
-	  				for(j = 0, j < #res.result, j++) {
-	  					
-	  					responseMessage += "    " + res.result[j] + "\n"
-	  				}
-	  			*/
 		    }
 		}
-		//se non ci sono, errore
+		// Se non sono presenti, ritorna un errore
 		else{
 
 			responseMessage = "       There are not registred repositories.\n"
@@ -122,73 +129,92 @@ main
 
 	} ] { 
 
-		println@Console( responseMessage )();
+		println@Console( responseMessage )(); 
 		undef( responseMessage ) 
-	}
+
+		}
 
 
 	/*
 	 * Cancella una repository salvata sul server
 	 */
-	[ delete(message)(responseMessage) {
+	[ delete( message )( responseMessage ) {
 
+		// Lista di tutte le repo sul server
 		repo.directory = serverRepo;
 
-  		list@File(repo)(risposta);
+  		list@File( repo )( risposta );
 
+  		// Inizializzata la variabile della repo trovata a false
   		trovato = false;
 
-  		//stampa tutte le repositories contenute nel server
+  		// Controlla tutte le repo
   		for(i = 0, i < #risposta.result, i++) {
 
+  			// Se quella ricevuta in input è uguale ad una repo sul server
   			if(message.repoName == risposta.result[i]) {
 
-  				deleteDir@File(serverRepo+"/"+risposta.result[i])(deleted);
+  				// Viene eliminata e la variabile settata a true
+  				deleteDir@File( serverRepo + "/" + risposta.result[i] )( deleted );
 
   				trovato = true
   			}
   		};
 
-  		if(trovato) {
+  		// Se è stata trovata, ritorna un messaggio di successo
+  		if( trovato ) {
 
   			responseMessage.error = false;
 	  		responseMessage.message = " Success, removed repository.\n"
   		}
 
+  		// Altrimenti significa che la repo non esiste sul server
   		else {
   			responseMessage.error = true;
   			responseMessage.message = " Error, selected repository does not exist.\n"
   		}
 
-	}] { println@Console( responseMessage )() }
+	}] { 
+
+		println@Console( responseMessage )(); 
+		undef( responseMessage ) 
+
+		}
 
 
-	
+
+	/* 
+	 * Riceve il file di versione locale dal client, 
+	 * modifica il percorso e legge il contenuto della versione online.
+	 * Confronta i due contenuti e poi incrementa la versione online,
+	 * infine ritorna un messaggio di successo o errore
+	 */
 	[ push(vers)(responseMessage){
+
 
 		with( file ) {
 
-			// percorso delle cartelle nel server in cui salvare il file
-			.filename = serverRepo + "/" + vers.folder+ "/"+ "vers.txt";
-			.format = "binary"
+			// Percorso della versione online sul server
+			.filename = serverRepo + "/" + vers.folder + "/"+ "vers.txt"
+
 		};
 
-		println@Console( file.filename )();
-
+		// Lettura del contenuto del file di versione
 		readFile@File(file)(readed.content);
 
-		println@Console( readed.content )();
-
+		// Confronto versione del client con quella del server
 		if( vers.content == readed.content) {
 			
-			// viene rimosso il parametro folder per il writeFile
-			undef( vers.folder );
+			// Viene rimosso il parametro folder per il writeFile
+			undef( file.folder );
 
+			// Incremento del numero di versione e scrittura sul file
 			file.content++;	
-
+			
 			writeFile@File(file)();
 
 			responseMessage.error = false;
+
 			responseMessage.message = " Success.\n"
 
 		}
@@ -199,25 +225,28 @@ main
 			responseMessage.message = " Error, need to upgrade the repo  .\n"
 		}
 
+		// Output del messaggio e pulizia della variabile ricevuta e del messaggio stampato
 	}] { 
 
 		println@Console(responseMessage.message)();
 		undef( vers );
 		undef( responseMessage ) 
-	}
+
+		}
 
 	/*
-	 * riceve una stringa, il nome della repository
-	 * inizia una visita ricorsiva (in questo caso basta absolute path)
-	 * setta il messaggio positivo 
+	 * Riceve una stringa, il nome della repository, ed
+	 * inizia una visita ricorsiva (in questo caso basta absolute path),
+	 * poi setta il messaggio positivo, ritornando anche la struttura delle cartelle 
 	 */
 	[ pull(repoName)(responseMessage){
 
 		abDirectory = "serverRepo/"+repoName;
 
+		// Chiamata ricorsiva delle visita delle cartelle
 		initializeVisita;
 
-		//preparo la risposta positiva
+		// Preparo la risposta positiva
 		with( responseMessage ){
 		  
 		  	.error = false;
@@ -231,59 +260,73 @@ main
 		//si vede se esiste
 		//si vede se si può leggere
 		//vengono mandati tutti i file da server a client
-	}] { println@Console(responseMessage.message)();undef( vers ) }
+	}] { 
+
+		println@Console(responseMessage.message)(); 
+		undef( vers ); 
+		undef(responseMessage)
+
+		}
 	
 
-	//Sezione di invio/ricezione file
+	// Sezione di invio/ricezione file
 
 	/*
-	 * requestFile accetta una stringa, che è il percorso relativo del file 
+	 * RequestFile accetta una stringa, che è il percorso relativo del file, 
 	 * la legge, e ritorna il contenuto al client
 	 *
 	 */
 	[ requestFile(fileName)(file) {
 
-		//prepara il file per la lettura
-		//salva il contenuto e lo invia al client
+		// Prepara il file per la lettura
+		// Salva il contenuto e lo invia al client
 		file.filename = fileName;
 		readFile@File(file)(file.content)
 
-		//in output il nome del file, pulizia della variabile file
-	} ]{ println@Console( "requested "+ fileName )() }
+		// In output il nome del file, pulizia della variabile file
+	} ] { 
+
+		println@Console( " Requested "+ fileName )()
+
+		}
+
 	
 	/*
-	 * riceve il percorso di un file e il suo contenuto
-	 * fa il writeFile nel percorso desiderato
+	 * Riceve il percorso di un file ed il suo contenuto,
+	 * poi fa il writeFile nel percorso desiderato
 	 */
 	[ sendFile( file ) ] {
 		
-		//modifica del percorso 
-		file.filename = "ServerRepo/"+file.filename;
+		// Pulizia della variabile folder
+		undef(file.folder);
+
+		// Modifica del percorso 
+		file.filename = "ServerRepo/"+ file.filename;
 		
-		//splitto il percorso per /
+		// Splitto il percorso per /
 		toSplit = file.filename;
 		toSplit.regex = "/";
 		split@StringUtils(toSplit)(splitResult);
 		
 		println@Console( " Requested: "+ fileName )();
 
-		//per ogni cartella nel percorso
-		//tranne per il file
+		// Per ogni cartella nel percorso
+		// (tranne per il file)
 		for(j=0, j<#splitResult.result-1, j++){
 
 			dir += splitResult.result[j] + "/";
 
-			//la riscrivo se non c'è già
+			// Riscrivo la cartella, se non c'è già
 			mkdir@File(dir)()
 		};
 
-		//alla fine scrivo il file
+		// Alla fine scrivo il file
 		writeFile@File(file)();
 
-		//pulisco la directory
+		// Pulisco la directory
 		undef( dir );
 
-		//output di controllo
+		// Output di controllo
 		println@Console( " Received : "+file.filename+"\n" )()
 	}
 }

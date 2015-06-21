@@ -1,3 +1,15 @@
+/*
+*
+* Author => Gruppo LOBSTER
+* Data => 21/06/2015
+* Parent => Server
+* 
+*/
+
+
+/* 
+ * Definizione della visita ricorsiva di tutte le cartelle
+ */
 define visita
 {
 	 
@@ -48,10 +60,14 @@ define visita
 	}
 }
 
+
+/*
+ * Inizializzazione della visita e chiamata ricorsiva
+ */ 
 define initializeVisita
 {
 
-	//predispongo la visita
+	// Predispongo la visita
 	i = 1;
 	visita
 }
