@@ -135,7 +135,7 @@ main
 	  		//stampa tutte le repositories contenute nel server
 	  		for(i = 0, i < #risposta.result, i++) {
 
-	  			responseMessage += "       " + risposta.result[i]+"\n"
+	  			responseMessage += " Folders: " + risposta.result[i]+"\n"
 
 	  			/*
 	  			repo2.directory = repo.directory + risposta.result[i];
@@ -341,12 +341,9 @@ main
 		  	.error = false;
 		  	.message = " Success, pull request done.\n";
 		  	.folderStructure << folderStructure
-		};
+		}
 		
-		valueToPrettyString@StringUtils(responseMessage)(struc);
-
-		println@Console( abDirectory+"\n"+struc )()
-		
+		//valueToPrettyString@StringUtils(responseMessage)(struc);
 
 		//repoName
 
@@ -357,14 +354,14 @@ main
 		//vengono mandati tutti i file da server a client
 		
 
-	}] { println@Console(responseMessage.message)();undef( vers ) }
+	}] { undef( vers ) }
 	
 
 	[ requestFile(fileName)(file) {
 
 		file.filename = fileName;
 
-		println@Console( "requested "+ fileName )();
+		println@Console( " Requested: "+ fileName )();
 
 		readFile@File(file)(file.content)
 
