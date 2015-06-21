@@ -32,7 +32,15 @@ define visita
 
 			len = #folderStructure.file;
 
-			folderStructure.file[len] = cartelle.sottocartelle[i].abNome
+			currentFileAbsName -> cartelle.sottocartelle[i].abNome;
+
+		 	currentFileAbsName.substring = ".";
+
+		 	contains@StringUtils( currentFileAbsName )( isContained );
+
+		 	if( isContained == true ) 
+
+			 	folderStructure.file[len].absolute = currentFileAbsName
 		};
 
 		i++
