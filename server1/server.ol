@@ -149,12 +149,7 @@ main
   			// Se quella ricevuta in input è uguale ad una repo sul server
   			if(message.repoName == risposta.result[i]) {
 
-<<<<<<< HEAD
   				deleteDir@File(serverRepo+risposta.result[i])(deleted);
-=======
-  				// Viene eliminata e la variabile settata a true
-  				deleteDir@File(serverRepo+"/"+risposta.result[i])(deleted);
->>>>>>> origin/master
 
   				trovato = true
   			}
@@ -208,35 +203,11 @@ main
 			// Incremento del numero di versione e scrittura sul file
 			file.content = int(contenuto) +1;
 
-<<<<<<< HEAD
-			  	.error = false;
-				.message = " Success.\n"
-=======
 			writeFile@File(file)();
 				
 			.error = false;
 			.message = " Success.\n"
 
-			/*
-			if( vers.content == readed.content) {
-				
-				file.content = int(file.content) + 1;
-
-				writeFile@File(file)();
-
-				
-			  	.error = false;
-				.message = " Success.\n"
-			}
-			else {
-
-				.error = true;
-				.message = " Error, need to upgrade the repo  .\n"
-			};
-
-			println@Console( file.content )()
-			*/
->>>>>>> origin/master
 		}
 
 		// Output del messaggio e pulizia della variabile ricevuta, 
@@ -314,13 +285,8 @@ main
 	 */
 	[ sendFile( file ) ] {
 		
-<<<<<<< HEAD
-		//modifica del percorso 
-		file.filename = serverRepo+file.filename;
-=======
 		// Modifica del percorso 
-		file.filename = "ServerRepo/"+file.filename;
->>>>>>> origin/master
+		file.filename = serverRepo+file.filename;
 
 		// Splitto il percorso per /
 		toSplit = file.filename;
