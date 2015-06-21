@@ -36,11 +36,11 @@ define visita
 
 		 	currentFileAbsName.substring = ".";
 
-		 	contains@StringUtils( currentFileAbsName )( isContained );
+		 	contains@StringUtils( currentFileAbsName )( containsAFile );
 
-		 	if( isContained == true ) 
+		 	if( containsAFile == true ) 
 
-			 	folderStructure.file[len].absolute = currentFileAbsName
+			 	folderStructure.file[len] = currentFileAbsName
 		};
 
 		i++
