@@ -1,8 +1,11 @@
 include "console.iol"
-include "../server_utilities/interface/fromClient.iol"
+
 include "file.iol"
 include "string_utils.iol"
 include "types/Binding.iol"
+
+include "../server_utilities/interface/fromClient.iol"
+include "../server_utilities/interface/serverDef.ol"
 
 inputPort FromClient {
 	Location: "socket://localhost:4000"
@@ -12,65 +15,15 @@ inputPort FromClient {
 
 execution{ concurrent }
 
-constants {
+constants 
+{
 	serverRepo = "serverRepo"
 }
 
-define visita
+init
 {
-	 
-    root.directory = abDirectory;
-
-	list@File(root)(subDir);
-
-	for(j = 0, j < #subDir.result, j++) {
-
-		// Salva il percorso assoluto e relativo
-		cartelle.sottocartelle[i].abNome = abDirectory + "/" + subDir.result[j];
-
-		newRoot.directory = cartelle.sottocartelle[i].abNome;
-
-		// Viene controllato se la cartella ha delle sottocartelle. Se non ha sottocartelle
-		// Viene salvato tutto il percorso per arrivare in quella cartella
-		list@File( newRoot )( last );
-
-		if(#last.result == 0)  {
-
-			len = #folderStructure.file;
-
-			folderStructure.file[len] = cartelle.sottocartelle[i].abNome
-		};
-
-		i++
-    };
-
-	i = 1;
-
-	// Finchè una sottocartella è già stata visitata, si passa alla successiva
-	while( cartelle.sottocartelle[i].mark == true && i < #cartelle.sottocartelle) {
-
-		i++
-	};
-
-	// Se non si è arrivati alla fine dell'array cartelle, l'attributo mark della cartella viene
-	// Settato a true, e si richiama il metodo visita
-	if( is_defined( cartelle.sottocartelle[i].abNome )) {
-
-		cartelle.sottocartelle[i].mark = true;
-
-		abDirectory = cartelle.sottocartelle[i].abNome;
-
-		i = #cartelle.sottocartelle;
-
-		visita
-	}
-}
-
-define initializeVisita{
-
-	//predispongo la visita
-	i = 1;
-	visita
+  	global.readerCount = 0;
+  	global.writerCount = 0
 }
 
 main
@@ -88,163 +41,78 @@ main
 
 		undef( responseMessage );
 
+		repoName = serverRepo+"/"+message.repoName;
+
 		//controlla se la repo non sia già stata creata
-		exists@File(serverRepo+"/"+message.repoName)(exist);
+		exists@File(repoName)(exist);
 
 		//se esiste già la cartella
 		//c'è un errore
 		if(exist){
 
-			responseMessage.error = true;
-			responseMessage.message = " Error, "+message.repoName+" is already in use.\n"
+			with( responseMessage ){
+
+		  		.error = true;
+		  		.message = " Error, "+message.repoName+" is already in use.\n"
+			}
 		}
 
 		//se la cartella non esisteva la crea
 		else{
 
-			/*root.from = "LocalRepo/"+message.localPath;
-			root.to = "repo/"+message.repoName;
-			copyDir@File(root)();*/
-			mkdir@File(serverRepo+"/"+message.repoName)();
+			mkdir@File(repoName)();
 
 			// Preparazione del file di versione
-  			toSend.filename = serverRepo+"/"+message.repoName+"/vers.txt";
-  			toSend.content = 0;
+			with( toSend ){
+			  
+			  	.filename = repoName+"/vers.txt";
+			  	.content = 0;
 
-  			writeFile@File(toSend)();
+  				writeFile@File(toSend)();
+  				undef( toSend )
+			};
+			//preparazione del messaggio di ritorno
+  			with( responseMessage ){
 
-			responseMessage.error = false;
-			responseMessage.message = " Success, repository created.\n"
+		  		.error = false;
+		  		.message = " Success, repository created.\n";
+
+		  		println@Console(.message)()
+			}
 		}
 
-	} ] { println@Console(responseMessage.message)();undef( toSend ) } 
+	} ] { nullProcess } 
 
 	/*
-
-	   Lista delle repository
+	 *
+	 * ritorna la lita di tutte le repo registrate sul server
+	 * sotto forma di stringa
 	 */
-	[ listRepo(message)(responseMessage) {
+	[ listRepo()(responseMessage) {
 
+		//lista di tutte le repo del server
 		repo.directory = serverRepo;
-
   		list@File(repo)(risposta);
 
-  		
+  		//se ce ne sono
   		if( is_defined( risposta.result ) ){
 
 	  		//stampa tutte le repositories contenute nel server
 	  		for(i = 0, i < #risposta.result, i++) {
 
 	  			responseMessage += "       " + risposta.result[i]+"\n"
-
-	  			/*
-	  			repo2.directory = repo.directory + risposta.result[i];
-	  			
-	  			list@File(repo2)(res);
-
-	  				for(j = 0, j < #res.result, j++) {
-	  					
-	  					responseMessage += "    " + res.result[j] + "\n"
-	  				}
-	  			*/
 		    }
 		}
-		else
-			responseMessage = " void\n"
-	  	
+		//se non ci sono, errore
+		else{
 
-		//println@Console( risposta )();isDirectory(risposta.result[i])
-
-		//valueToPrettyString@StringUtils(risposta)(responseMessage)
-
-		/*for(i = 0, i < #risposta.directory, i++) {
-
-			response += risposta.directory[i] + " "
-			/*isDirectory@File( risposta.result[i] )( dir );
-			if( dir ) {
-
-				for(j = 0, j < #risposta.result[i], j++) {
-
-					responseMessage += risposta.result[i].result[j]
-				}
-			}
-		}*/
-
-	} ] { println@Console( responseMessage )();
-	undef( responseMessage ) }
-
-
-	/*
-	 * OneWay che aspetta un file e lo scrive nella nuova repository
-	 */
-	[ sendFile( file ) ] {
-		
-		println@Console( " Received : "+file.filename+"\n" )();
-
-		with( file ){
-		  
-		  	.filename = "ServerRepo/"+.filename
-		};
-
-		// scrive il file
-		scope( FileNotFoundException )
-		{
-			//se manca una cartella nel percorso
-		  	install( IOException => 
-
-		  		//splitta tutto il percorso
-		  		toSplit = file.filename;
-		  		toSplit.regex = "/";
-
-		  		split@StringUtils(toSplit)(splitResult);
-
-		  		//per ogni cartella nel percorso
-		  		//tranne per il file
-		  		for( i=0, i<#splitResult.result-1, i++)
-		  		{
-		  			//la crea se non esiste
-		  			dir += splitResult.result[i] +"/";
-		  			mkdir@File(dir)()
-		  		};
-
-		  		//infine scrive il file
-		  		writeFile@File(file)()
-		  	);
-
-	  		// Prova a scrivere il file
-	  		writeFile@File(file)()
-	  	}
-
-		/*
-		with( file ) {
-
-			// percorso delle cartelle nel server in cui salvare il file
-			.filename = serverRepo + "/" +.folder+ "/"+ .filename
-			
-		};
-
-		
-
-		if(file.filename == serverRepo + "/" + file.folder+ "/"+ "vers.txt") {
-			
-			// viene rimosso il parametro folder per il writeFile
-			undef( file.folder );
-
-			file.content++;	
-
-			writeFile@File(file)()
-
+			responseMessage = "       There are not registred repositories.\n"
 		}
 
-		else {
+	} ] { 
 
-			undef( file.folder );
-
-			writeFile@File(file)()
-		};
-
-		println@Console( " Ricevuto: "+file.filename+"\n" )()
-		*/
+		println@Console( responseMessage )();
+		undef( responseMessage ) 
 	}
 
 
@@ -320,7 +188,6 @@ main
 			responseMessage.message = " Error, need to upgrade the repo  .\n"
 		}
 
-
 	}] { 
 
 		println@Console(responseMessage.message)();
@@ -328,14 +195,18 @@ main
 		undef( responseMessage ) 
 	}
 
-	
+	/*
+	 * riceve una stringa, il nome della repository
+	 * inizia una visita ricorsiva (in questo caso basta absolute path)
+	 * setta il messaggio positivo 
+	 */
 	[ pull(repoName)(responseMessage){
 
 		abDirectory = "serverRepo/"+repoName;
 
 		initializeVisita;
 
-		//preparo la risposta
+		//preparo la risposta positiva
 		with( responseMessage ){
 		  
 		  	.error = false;
@@ -349,26 +220,60 @@ main
 		
 
 		//repoName
-
 		//si vede se esiste
-
 		//si vede se si può leggere
-
 		//vengono mandati tutti i file da server a client
-		
-
 	}] { println@Console(responseMessage.message)();undef( vers ) }
 	
 
+	//Sezione di invio/ricezione file
+
+	/*
+	 * requestFile accetta una stringa, che è il percorso relativo del file 
+	 * la legge, e ritorna il contenuto al client
+	 *
+	 */
 	[ requestFile(fileName)(file) {
 
+		//prepara il file per la lettura
+		//salva il contenuto e lo invia al client
 		file.filename = fileName;
-
-		println@Console( "requested "+ fileName )();
-
 		readFile@File(file)(file.content)
 
-
-	} ]{ undef( file ) }
+		//in output il nome del file, pulizia della variabile file
+	} ]{ println@Console( "requested "+ fileName )() }
 	
+	/*
+	 * riceve il percorso di un file e il suo contenuto
+	 * fa il writeFile nel percorso desiderato
+	 */
+	[ sendFile( file ) ] {
+		
+		//modifica del percorso 
+		file.filename = "ServerRepo/"+file.filename;
+		
+		//splitto il percorso per /
+		toSplit = file.filename;
+		toSplit.regex = "/";
+		split@StringUtils(toSplit)(splitResult);
+
+		//per ogni cartella nel percorso
+		//tranne per il file
+		for(j=0, j<#splitResult.result-1, j++){
+
+			dir += splitResult.result[j] + "/";
+
+			//la riscrivo se non c'è già
+			mkdir@File(dir)()
+		};
+
+		//alla fine scrivo il file
+		writeFile@File(file)();
+
+		//pulisco la directory
+		undef( dir );
+
+		//output di controllo
+		println@Console( " Received : "+file.filename+"\n" )()
+	}
 }
