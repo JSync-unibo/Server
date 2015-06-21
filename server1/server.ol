@@ -229,7 +229,9 @@ main
 	 */
 	[ pull(repoName)(responseMessage){
 
-		abDirectory = "/"+repoName;
+		//println@Console( "/"+repoName )();
+
+		abDirectory = serverRepo+repoName;
 
 		// Chiamata ricorsiva delle visita delle cartelle
 		initializeVisita;
@@ -240,9 +242,10 @@ main
 		  	.error = false;
 		  	.message = " Success, pull request done.\n";
 		  	.folderStructure << folderStructure
-		}
+		};
 		
-		//valueToPrettyString@StringUtils(responseMessage)(struc);
+		valueToPrettyString@StringUtils(responseMessage)(struc);
+		println@Console( struc )()
 
 		//repoName
 		//si vede se esiste
