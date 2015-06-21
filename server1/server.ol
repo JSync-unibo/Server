@@ -166,44 +166,55 @@ main
 	
 	[ push(vers)(responseMessage){
 
-		with( file ) {
+		println@Console( vers.filename )();
 
-			// percorso delle cartelle nel server in cui salvare il file
-			.filename = serverRepo + "/" + vers.folder+ "/"+ "vers.txt";
-			.format = "binary"
-		};
-
-		println@Console( file.filename )();
-
+		//leggo il file di versione nel server
+		file.filename = vers.filename;
 		readFile@File(file)(readed.content);
 
-		println@Console( readed.content )();
+		//trasformo il contenuto in stringa
+		contenuto = string(readed.content);
 
-		if( vers.content == readed.content) {
-			
-			// viene rimosso il parametro folder per il writeFile
-			undef( vers.folder );
+		println@Console( contenuto )();
 
-			file.content++;	
+		//se le stringhe sono uguali
+		with( responseMessage ){
 
-			writeFile@File(file)();
+			file.content = int(file.content) + 1;
 
-			responseMessage.error = false;
-			responseMessage.message = " Success.\n"
+				writeFile@File(file)();
 
-		}
+				
+			  	.error = false;
+				.message = " Success.\n"
 
-		else {
+			/*
+			if( vers.content == readed.content) {
+				
+				file.content = int(file.content) + 1;
 
-			responseMessage.error = true;
-			responseMessage.message = " Error, need to upgrade the repo  .\n"
+				writeFile@File(file)();
+
+				
+			  	.error = false;
+				.message = " Success.\n"
+			}
+			else {
+
+				.error = true;
+				.message = " Error, need to upgrade the repo  .\n"
+			};
+
+			println@Console( file.content )()
+			*/
 		}
 
 	}] { 
 
 		println@Console(responseMessage.message)();
 		undef( vers );
-		undef( responseMessage ) 
+		undef( responseMessage ) ;
+		undef( file )
 	}
 
 	/*
@@ -249,7 +260,7 @@ main
 		readFile@File(file)(file.content)
 
 		//in output il nome del file, pulizia della variabile file
-	} ]{ println@Console( "requested "+ fileName )(); undef( file ) }
+	} ]{ undef( file ) }
 	
 	/*
 	 * riceve il percorso di un file e il suo contenuto
@@ -259,7 +270,7 @@ main
 		
 		//modifica del percorso 
 		file.filename = "ServerRepo/"+file.filename;
-		
+
 		//splitto il percorso per /
 		toSplit = file.filename;
 		toSplit.regex = "/";
