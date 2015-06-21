@@ -249,7 +249,7 @@ main
 		readFile@File(file)(file.content)
 
 		//in output il nome del file, pulizia della variabile file
-	} ]{ println@Console( "requested "+ fileName )() }
+	} ]{ println@Console( "requested "+ fileName )(); undef( file ) }
 	
 	/*
 	 * riceve il percorso di un file e il suo contenuto
@@ -265,7 +265,7 @@ main
 		toSplit.regex = "/";
 		split@StringUtils(toSplit)(splitResult);
 		
-		println@Console( " Requested: "+ fileName )();
+		println@Console( " Requested: "+ file.fileName )();
 
 		//per ogni cartella nel percorso
 		//tranne per il file
