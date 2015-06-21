@@ -100,10 +100,7 @@ main
 	  		//stampa tutte le repositories contenute nel server
 	  		for(i = 0, i < #risposta.result, i++) {
 
-<<<<<<< HEAD
 	  			responseMessage += "       " + risposta.result[i]+"\n"
-=======
-	  			responseMessage += " Folders: " + risposta.result[i]+"\n"
 
 	  			/*
 	  			repo2.directory = repo.directory + risposta.result[i];
@@ -115,7 +112,6 @@ main
 	  					responseMessage += "    " + res.result[j] + "\n"
 	  				}
 	  			*/
->>>>>>> origin/master
 		    }
 		}
 		//se non ci sono, errore
@@ -235,13 +231,7 @@ main
 		//si vede se esiste
 		//si vede se si può leggere
 		//vengono mandati tutti i file da server a client
-<<<<<<< HEAD
 	}] { println@Console(responseMessage.message)();undef( vers ) }
-=======
-		
-
-	}] { undef( vers ) }
->>>>>>> origin/master
 	
 
 	//Sezione di invio/ricezione file
@@ -258,7 +248,6 @@ main
 		file.filename = fileName;
 		readFile@File(file)(file.content)
 
-<<<<<<< HEAD
 		//in output il nome del file, pulizia della variabile file
 	} ]{ println@Console( "requested "+ fileName )() }
 	
@@ -275,9 +264,8 @@ main
 		toSplit = file.filename;
 		toSplit.regex = "/";
 		split@StringUtils(toSplit)(splitResult);
-=======
+		
 		println@Console( " Requested: "+ fileName )();
->>>>>>> origin/master
 
 		//per ogni cartella nel percorso
 		//tranne per il file
