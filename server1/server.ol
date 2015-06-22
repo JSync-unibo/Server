@@ -33,7 +33,8 @@ constants
 init
 {
   	global.readerCount = 0;
-  	global.writerCount = 0
+  	global.writerCount = 0;
+
 }
 
 main
@@ -192,22 +193,35 @@ main
 
 		readFile@File(file)(readed.content);
 
-		// Trasformo il contenuto in stringa
-		contenuto = string(readed.content);
+		if(vers.content < readed.content) {
 
-		println@Console( contenuto )();
+			with( responseMessage ) {
 
-		// Se le stringhe sono uguali
-		with( responseMessage ){
+				.error = true;
+				.message = " The version is old, need to pull! \n"
+			}
+		}
 
-			// Incremento del numero di versione e scrittura sul file
-			file.content = int(contenuto) +1;
+		else {
 
-			writeFile@File(file)();
-				
-			.error = false;
-			.message = " Success.\n"
+			releas
+			// Trasformo il contenuto in stringa
+			contenuto = string(readed.content);
 
+			println@Console( contenuto )();
+
+			// Se le stringhe sono uguali
+			with( responseMessage ){
+
+				// Incremento del numero di versione e scrittura sul file
+				file.content = int(contenuto) +1;
+
+				writeFile@File(file)();
+					
+				.error = false;
+				.message = " Success.\n"
+
+			}
 		}
 
 		// Output del messaggio e pulizia della variabile ricevuta, 
@@ -229,6 +243,7 @@ main
 	 */
 	[ pull(repoName)(responseMessage){
 
+		readerCount++;
 		//println@Console( "/"+repoName )();
 
 		abDirectory = serverRepo+repoName;
