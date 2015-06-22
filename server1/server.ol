@@ -34,7 +34,6 @@ init
 {
   	global.readerCount = 0;
   	global.writerCount = 0
-
 }
 
 main
