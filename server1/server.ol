@@ -254,9 +254,17 @@ main
 		// Preparo la risposta positiva
 		with( responseMessage ){
 		  
-		  	.error = false;
-		  	.message = " Success, pull request done.\n";
-		  	.folderStructure << folderStructure
+		  	if(folderStructure.file[0] != null) {
+
+			  	.error = false;
+			  	.message = " Success, pull request done.\n";
+			  	.folderStructure << folderStructure
+			} 
+			else {
+
+				.error = true;
+				.message = " The repository is empty.\n"
+			}
 		};
 		
 		valueToPrettyString@StringUtils(responseMessage)(struc);
