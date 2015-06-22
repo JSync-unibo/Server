@@ -33,7 +33,7 @@ constants
 init
 {
   	global.readerCount = 0;
-  	global.writerCount = 0;
+  	global.writerCount = 0
 
 }
 
@@ -204,7 +204,7 @@ main
 
 		else {
 
-			releas
+			//releas
 			// Trasformo il contenuto in stringa
 			contenuto = string(readed.content);
 
