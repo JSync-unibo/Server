@@ -12,6 +12,7 @@ include "console.iol"
 include "file.iol"
 include "string_utils.iol"
 include "types/Binding.iol"
+include "time.iol"
 
 include "../server_utilities/interface/fromClient.iol"
 include "../server_utilities/interface/serverDef.ol"
@@ -184,7 +185,6 @@ main
 	 */
 	[ push(vers)(responseMessage){
 
-
 		println@Console( vers.filename )();
 
 		// Lettura del contenuto del file di versione
@@ -220,7 +220,9 @@ main
 				.error = false;
 				.message = " Success.\n"
 
-			}
+			};
+
+			sleep@Time(10000)()
 		}
 
 		// Output del messaggio e pulizia della variabile ricevuta, 
@@ -234,6 +236,60 @@ main
 	}
 
 
+	[ increaseCountPull(var)(responseMessage){
+		
+		if( global.writerCount >= 1 ) {
+
+			responseMessage.error = true;
+			responseMessage.message = var.operation+ " operation in progress..."
+		}
+
+		else {
+
+			synchronized( increase ){
+
+			 global.readerCount++
+
+			};
+
+			println@Console( global.writerCount )();
+
+
+			responseMessage.error = false;
+			responseMessage.message = "You can do the operation"
+		}
+
+
+	} ] { undef(responseMessage) }
+
+	[ increaseCountPush(var)(responseMessage){
+		
+
+		if( global.readerCount >= 1 ) {
+
+			responseMessage.error = true;
+			responseMessage.message = var.operation+ " operation in progress..."
+		}
+
+		else {
+
+			synchronized( increase ){
+
+			 global.writerCount++
+
+			};
+
+			println@Console( global.readerCount )();
+
+			responseMessage.error = false;
+			responseMessage.message = "You can do the operation"
+		}
+
+
+	} ] { undef(responseMessage) }
+
+
+
 	
 	/*
 	 * Riceve una stringa, il nome della repository, ed
@@ -242,7 +298,6 @@ main
 	 */
 	[ pull(repoName)(responseMessage){
 
-		readerCount++;
 		//println@Console( "/"+repoName )();
 
 		abDirectory = serverRepo+repoName;
@@ -266,6 +321,7 @@ main
 			}
 		};
 		
+		sleep@Time(10000)();
 		valueToPrettyString@StringUtils(responseMessage)(struc);
 		println@Console( struc )()
 
@@ -281,6 +337,28 @@ main
 
 		}
 	
+	[ decreaseCountPull(var) ] {
+
+		synchronized( decrease ){
+		  
+		  global.readerCount--
+		};
+
+		println@Console( global.readerCount )()
+
+	}
+
+	[ decreaseCountPush(var) ] {
+
+		synchronized( decrease ){
+		  
+		 global.writerCount--
+		};
+
+		println@Console( global.writerCount )()
+
+	}
+
 	
 	// Sezione di invio/ricezione file
 

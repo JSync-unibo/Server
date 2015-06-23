@@ -33,6 +33,13 @@ type ResponseMessage: void {
     }
 }
 
+type GlobalVar: void {
+
+    .count1: string
+    .count2: string
+    .operation: string
+}
+
 
 //Interfaccia fra il client ed il server
 interface ToServerInterface { 
@@ -43,6 +50,8 @@ interface ToServerInterface {
 
         addRepository(ToServerType)(ResponseMessage),
         push(FileRequestType)(ResponseMessage),
+        increaseCountPull(GlobalVar)(ResponseMessage),
+         increaseCountPush(GlobalVar)(ResponseMessage),
         pull(string)(ResponseMessage),
         delete(ToServerType)(ResponseMessage),
 
@@ -50,5 +59,7 @@ interface ToServerInterface {
 
     OneWay: 
     
-        sendFile( FileRequestType )
+        sendFile( FileRequestType ),
+         decreaseCountPull(string),
+        decreaseCountPush(string)
 }
