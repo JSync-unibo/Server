@@ -323,7 +323,7 @@ main
 		  
 			global.count[var]--
 
-		};
+		}
 
 	}
 
