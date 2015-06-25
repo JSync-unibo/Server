@@ -79,3 +79,21 @@ define initializeVisita
 	i = 1;
 	visita
 }
+
+define modulo 
+{
+
+	a = operando;
+	b = 1;
+
+	if( a < b ) {
+
+		mod = a+1
+	}
+
+	else {
+
+		mod = a%b
+	}
+
+}

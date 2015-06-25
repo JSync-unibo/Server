@@ -33,8 +33,8 @@ constants
 
 init
 {
-  	global.readerCount = 0;
-  	global.writerCount = 0
+  	global.count[0] = 0;
+  	global.count[1] = 0
 }
 
 main
@@ -208,18 +208,22 @@ main
 			contenuto = string(readed.content);
 
 			println@Console( contenuto )();
+			
+			synchronized( increaseFileVersion ){
+			  
+			
+				// Se le stringhe sono uguali
+				with( responseMessage ){
 
-			// Se le stringhe sono uguali
-			with( responseMessage ){
+					// Incremento del numero di versione e scrittura sul file
+					file.content = int(contenuto) +1;
 
-				// Incremento del numero di versione e scrittura sul file
-				file.content = int(contenuto) +1;
+					writeFile@File(file)();
+						
+					.error = false;
+					.message = " Success.\n"
 
-				writeFile@File(file)();
-					
-				.error = false;
-				.message = " Success.\n"
-
+				}
 			};
 
 			sleep@Time(10000)()
@@ -236,9 +240,13 @@ main
 	}
 
 
-	[ increaseCountPull(var)(responseMessage){
+	[ increaseCount(var)(responseMessage){
 		
-		if( global.writerCount >= 1 ) {
+		operando = var.id;
+
+		modulo;
+
+		if( global.count[mod] >= 1 ) {
 
 			responseMessage.error = true;
 			responseMessage.message = var.operation+ " operation in progress..."
@@ -248,12 +256,9 @@ main
 
 			synchronized( increase ){
 
-			 global.readerCount++
+				global.count[var.id]++
 
 			};
-
-			println@Console( global.writerCount )();
-
 
 			responseMessage.error = false;
 			responseMessage.message = "You can do the operation"
@@ -261,34 +266,6 @@ main
 
 
 	} ] { undef(responseMessage) }
-
-	[ increaseCountPush(var)(responseMessage){
-		
-
-		if( global.readerCount >= 1 ) {
-
-			responseMessage.error = true;
-			responseMessage.message = var.operation+ " operation in progress..."
-		}
-
-		else {
-
-			synchronized( increase ){
-
-			 global.writerCount++
-
-			};
-
-			println@Console( global.readerCount )();
-
-			responseMessage.error = false;
-			responseMessage.message = "You can do the operation"
-		}
-
-
-	} ] { undef(responseMessage) }
-
-
 
 	
 	/*
@@ -337,25 +314,13 @@ main
 
 		}
 	
-	[ decreaseCountPull(var) ] {
+	[ decreaseCount(var) ] {
 
 		synchronized( decrease ){
 		  
-		  global.readerCount--
+			global.count[var]--
+
 		};
-
-		println@Console( global.readerCount )()
-
-	}
-
-	[ decreaseCountPush(var) ] {
-
-		synchronized( decrease ){
-		  
-		 global.writerCount--
-		};
-
-		println@Console( global.writerCount )()
 
 	}
 
