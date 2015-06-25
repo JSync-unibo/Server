@@ -156,20 +156,23 @@ main
   			}
   		};
 
-  		// Se è stata trovata, ritorna un messaggio di successo
-  		if(trovato) {
+  		with( responseMessage ){
+  		  
+  		  	// Se è stata trovata, ritorna un messaggio di successo
+	  		if(trovato) {
 
-  			responseMessage.error = false;
-	  		responseMessage.message = " Success, removed repository.\n"
+	  			.error = false;
+		  		.message = " Success, removed repository.\n"
+	  		}
+
+	  		// Altrimenti significa che la repo non esiste sul server
+	  		else {
+	  			.error = true;
+	  			.message = " Error, selected repository does not exist.\n"
+	  		}
   		}
-
-  		// Altrimenti significa che la repo non esiste sul server
-  		else {
-  			responseMessage.error = true;
-  			responseMessage.message = " Error, selected repository does not exist.\n"
-  		}
-
-	}] { 
+	}] 
+	{ 
 
 		println@Console( responseMessage )(); 
 		undef( responseMessage ) 
