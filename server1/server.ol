@@ -1,12 +1,16 @@
 /*
 *
 * Author => Gruppo LOBSTER
-* Data => 21/06/2015
+* Data => 26/06/2015
 * 
 * Server
+*
+* Servizio collegato con clientUtilities attraverso una porta con una location specifica,
+* utilizzato per la condivisione delle repositories tra i diversi Clients, ricevendo delle
+* richieste e ritornando il contenuto desiderato
 */
 
-// Importazione delle interfacce e servizio relativo alla visita delle repo
+// Importazione delle interfacce 
 include "console.iol"
 
 include "file.iol"
@@ -15,10 +19,13 @@ include "types/Binding.iol"
 include "time.iol"
 
 include "../server_utilities/interface/fromClient.iol"
-include "../server_utilities/interface/serverDef.ol"
+
+// Importazione del servizio contenente i "define" richiamati dalle operazioni
+include "../server_utilities/serverDefine.ol"
 
 // Porta che collega il server con il client, in attesa di sue richieste
 inputPort FromClient {
+
 	Location: "socket://localhost:4000"
   	Protocol: sodep
 	Interfaces: ToServerInterface
@@ -26,11 +33,17 @@ inputPort FromClient {
 
 execution{ concurrent }
 
+// Costante richiamata nelle diverse input choices
 constants 
 {
 	serverRepo = "serverRepo/"
 }
 
+/*
+ * Inizializzazione delle variabili globali:
+ * - readers -> count[0]
+ * - writers -> count[1]
+ */
 init
 {
   	global.count[0] = 0;
@@ -40,45 +53,44 @@ init
 main
 {
 
-	/*
-	 * Viene inviato un messaggio con repoName e localPath
-	 * 
-	 * Controlla se la repository non esista già
-	 * in caso esiste, non la crea e da' errore
-	 *
-	 * Se non esiste crea la cartella e torna un boolean
-	 */
-	[ addRepository(message)(responseMessage) {
 
+	/*
+	 * Il Server riceve un messaggio con nome della repository e percorso 
+	 * della directory locale da creare
+	 */
+	[ addRepository( message )( responseMessage ) {
+
+		// Pulizia del messaggio di risposta inviato in altre input choices
 		undef( responseMessage );
 
-		repoName = serverRepo+message.repoName;
+		// Creazione del percorso dove salvare la nuova repository
+		repoName = serverRepo + message.repoName;
 
-		// Controlla se la repo non sia già stata creata
-		exists@File(repoName)(exist);
+		// Controlla se la repository non sia già stata creata
+		exists@File( repoName )( exist );
 
-		// Se esiste già la cartella, ritorna un errore
+		// Se esiste già, ritorna un errore
 		if(exist){
 
 			with( responseMessage ){
 
 		  		.error = true;
-		  		.message = " Error, "+message.repoName+" is already in use.\n"
+		  		.message = " Error, " + message.repoName + " is already in use.\n"
 			}
 		}
 
 		// Se la cartella non esiste la crea
 		else{
 
-			mkdir@File(repoName)();
+			mkdir@File( repoName )();
 
 			// Preparazione del file di versione e scrittura
 			with( toSend ){
 			  
-			  	.filename = repoName+"/vers.txt";
+			  	.filename = repoName + "/vers.txt";
 			  	.content = 0;
 
-  				writeFile@File(toSend)();
+  				writeFile@File( toSend )();
   				undef( toSend )
 			};
 
@@ -88,23 +100,24 @@ main
 		  		.error = false;
 		  		.message = " Success, repository created.\n";
 
-		  		println@Console(.message)()
+		  		println@Console( .message )()
 			}
 		}
 
 	} ] { nullProcess } 
 
 
+
 	/*
-	 * Ritorna la lita di tutte le repo registrate sul server
+	 * Ritorna la lita di tutte le repositories registrate sul Server
 	 * (sotto forma di stringa)
 	 */
-	[ listRepo()(responseMessage) {
+	[ listRepo()( responseMessage ) {
 
-		// Lista di tutte le repo del server
 		repo.directory = serverRepo;
 
-  		list@File(repo)(risposta);
+		// Lista di tutte le repository del server
+  		list@File( repo )( risposta );
 
   		// Se sono presenti
   		if( is_defined( risposta.result ) ){
@@ -112,7 +125,7 @@ main
 	  		// Stampa tutte le repositories contenute nel server
 	  		for(i = 0, i < #risposta.result, i++) {
 
-	  			responseMessage += "       " + risposta.result[i]+"\n"
+	  			responseMessage += "       " + risposta.result[i] + "\n"
 
 		    }
 		}
@@ -123,6 +136,7 @@ main
 			responseMessage = "       There are not registred repositories.\n"
 		}
 
+	// Stampa del messaggio di risposta e pulizia di esso
 	} ] { 
 
 		println@Console( responseMessage )();
@@ -131,26 +145,28 @@ main
 		}
 
 
-	/*
-	 * Cancella una repository salvata sul server
-	 */
-	[ delete(message)(responseMessage) {
 
-		// Lista di tutte le repo sul server
+	/*
+	 * Cancellazione di una repository salvata sul Server
+	 */
+	[ delete( message )( responseMessage ) {
+
 		repo.directory = serverRepo;
 
-  		list@File(repo)(risposta);
+		// Lista di tutte le repositories sul Server
+  		list@File( repo )( risposta );
 
-  		// Inizializzata la variabile della repo trovata a false
+  		// Inizializzazione della variabile a "false" della repository trovata 
   		trovato = false;
 
-  		// Controlla tutte le repo
+  		// Controlla tutte le repositories
   		for(i = 0, i < #risposta.result, i++) {
 
-  			// Se quella ricevuta in input è uguale ad una repo sul server
+  			// Se quella ricevuta in input è uguale ad una repository sul Server
   			if(message.repoName == risposta.result[i]) {
 
-  				deleteDir@File(serverRepo+risposta.result[i])(deleted);
+  				// Viene cancellata tutta la cartella
+  				deleteDir@File( serverRepo+risposta.result[i] )( deleted ) ;
 
   				trovato = true
   			}
@@ -165,12 +181,15 @@ main
 		  		.message = " Success, removed repository.\n"
 	  		}
 
-	  		// Altrimenti significa che la repo non esiste sul server
+	  		// Altrimenti significa che la repository non esiste sul server
 	  		else {
+
 	  			.error = true;
 	  			.message = " Error, selected repository does not exist.\n"
 	  		}
   		}
+
+  	// Stampa del messaggio di risposta e pulizia di esso	
 	}] 
 	{ 
 
@@ -180,23 +199,26 @@ main
 		}
 
 
+
 	/* 
-	 * Riceve il file di versione locale dal client, 
+	 * Riceve il file di versione locale dal Client, 
 	 * modifica il percorso e legge il contenuto della versione online.
-	 * Confronta i due contenuti e poi incrementa la versione online,
-	 * infine ritorna un messaggio di successo o errore
+	 * Confronta i due contenuti, se quella locale è minore di quella sul Server
+	 * viene inviato un messaggio di errore, altrimenti incrementa la propria versione
 	 */
-	[ push(vers)(responseMessage){
+	[ push( vers )( responseMessage ){
 
 		println@Console( vers.filename )();
 
 		// Lettura del contenuto del file di versione
 		file.filename = vers.filename;
 
-		readFile@File(file)(readed.content);
+		readFile@File( file )( readed.content );
 
+		// Se la versione del Client è minore di quella del Server
 		if(vers.content < readed.content) {
 
+			// Messaggio di errore (è necessaria la pull prima)
 			with( responseMessage ) {
 
 				.error = true;
@@ -204,24 +226,22 @@ main
 			}
 		}
 
+		// Se la versione del Client è maggiore o uguale
 		else {
 
-			//releas
-			// Trasformo il contenuto in stringa
+			// Trasformazione del contenuto in stringa
 			contenuto = string(readed.content);
-
-			println@Console( contenuto )();
 			
+			// Per rendere atomica l'operazione di incremento del file di versione
+			// si inserisce dentro il metodo synchronized
 			synchronized( increaseFileVersion ){
-			  
-			
-				// Se le stringhe sono uguali
+
 				with( responseMessage ){
 
 					// Incremento del numero di versione e scrittura sul file
 					file.content = int(contenuto) +1;
 
-					writeFile@File(file)();
+					writeFile@File( file )();
 						
 					.error = false;
 					.message = " Success.\n"
@@ -229,32 +249,46 @@ main
 				}
 			};
 
-			sleep@Time(10000)()
+			// Tempo di attesa prima della conclusione della push 
+			// per testare la concorrenza
+			sleep@Time( 10000 )()
 		}
 
-		// Output del messaggio e pulizia della variabile ricevuta, 
-		// del messaggio stampato e file nel server
+	// Output del messaggio e pulizia della variabile ricevuta, 
+	// del messaggio stampato e del file
 	}] { 
 
-		println@Console(responseMessage.message)();
+		println@Console( responseMessage.message )();
 		undef( vers );
 		undef( responseMessage ) ;
 		undef( file )
 	}
 
 
-	[ increaseCount(var)(responseMessage){
+
+   /*
+	* Incremento della variabile globale 
+	* (reader o writer a seconda se viene richiamata la pull o la push) 
+	*/
+
+	[ increaseCount( var )( responseMessage ){
 		
+		// Utilizzo dell'operazione modulo
+		// (richiamato dal servizio serverDefine)
 		operando = var.id;
 
 		modulo;
 
+		// Se il numero di writers (per la pull) o di readers (per la push)
+		// è maggiore o uguale a 1, allora si blocca l'operazione
 		if( global.count[mod] >= 1 ) {
 
 			responseMessage.error = true;
-			responseMessage.message = var.operation+ " operation in progress..."
+			responseMessage.message = " " + var.operation + " operation in progress..."
 		}
 
+		// Altrimenti si rende l'operazione di incremento atomica e si aumenta
+		// il numero di readers (pull) o di writers (push)
 		else {
 
 			synchronized( increase ){
@@ -267,33 +301,37 @@ main
 			responseMessage.message = "You can do the operation"
 		}
 
-
-	} ] { undef(responseMessage) }
+	// Pulizia del messaggio di risposta
+	} ] { undef( responseMessage ) }
 
 	
+
 	/*
-	 * Riceve una stringa, il nome della repository, ed
+	 * Il Server riceve una stringa, il nome della repository, ed
 	 * inizia una visita ricorsiva (in questo caso basta absolute path),
 	 * poi setta il messaggio positivo, ritornando anche la struttura delle cartelle 
 	 */
-	[ pull(repoName)(responseMessage){
-
-		//println@Console( "/"+repoName )();
+	[ pull( repoName )( responseMessage ){
 
 		abDirectory = serverRepo+repoName;
 
-		// Chiamata ricorsiva delle visita delle cartelle
+		// Visita ricorsiva delle cartelle
+		// (richiamata dal servizio serverDefine)
 		initializeVisita;
 
-		// Preparo la risposta positiva
+		// Preparazione del messaggio di risposta
 		with( responseMessage ){
 		  
+		  	// Se sono presenti files da inviare nella repository richiesta,
+		  	// si invia un messaggio di successo e la struttura della repository
 		  	if(folderStructure.file[0] != null) {
 
 			  	.error = false;
 			  	.message = " Success, pull request done.\n";
 			  	.folderStructure << folderStructure
 			} 
+
+			// Altrimenti significa che la repository è vuota
 			else {
 
 				.error = true;
@@ -301,24 +339,32 @@ main
 			}
 		};
 		
+		// Tempo di attesa prima che la pull si concluda
+		// per testare la concorrenza
 		sleep@Time(10000)();
+
+		// Stampa della struttura della repository
 		valueToPrettyString@StringUtils(responseMessage)(struc);
 		println@Console( struc )()
 
-		//repoName
-		//si vede se esiste
-		//si vede se si può leggere
-		//vengono mandati tutti i file da server a client
+	// Stampa del messaggio di risposta e pulizia di esso e del file di versione
 	}] { 
 
-		println@Console(responseMessage.message)(); 
+		println@Console( responseMessage.message )(); 
 		undef( vers ); 
-		undef(responseMessage)
+		undef( responseMessage )
 
 		}
 	
+
+
+   /*
+	* Decremento della variabile dei readers (pull)
+	* o writers (push), quando la loro operazione è completata
+	*/
 	[ decreaseCount(var) ] {
 
+		// Decremento nel synchronized, per renderlo atomico
 		synchronized( decrease ){
 		  
 			global.count[var]--
@@ -332,57 +378,61 @@ main
 
 	/*
 	 * RequestFile accetta una stringa, che è il percorso relativo del file, 
-	 * la legge, e ritorna il contenuto al client
+	 * la legge, e ritorna il contenuto al Client
 	 *
 	 */
-	[ requestFile(fileName)(file) {
+	[ requestFile( fileName )( file ) {
 
-		// Prepara il file per la lettura,
-		// salva il contenuto e lo invia al client
+		// Preparazione del file per la lettura e
+		// ritorno del contenuto che viene inviato al Client
 		file.filename = fileName;
 
-		readFile@File(file)(file.content)
+		readFile@File( file )( file.content );
 
-		// In output il nome del file e poi pulizia della variabile file
+		// Stampa dei files richiesti dal Client
+		println@Console( " Requested: " + file.fileName )()
+
+	// Pulizia del file, dopo averlo inviato
 	} ]{ 
 
 		undef( file ) 
 		
 	   }
 	
+
+
 	/*
-	 * Riceve il percorso di un file ed il suo contenuto,
-	 * poi fa il writeFile nel percorso desiderato
+	 * SendFile riceve il percorso di un file ed il suo contenuto,
+	 * che viene scritto sul Server nella repository selezionata
 	 */
 	[ sendFile( file ) ] {
 		
-		// Modifica del percorso 
-		file.filename = serverRepo+file.filename;
+		// Modifica del percorso del file ricevuto, cambiando la repository globale
+		file.filename = serverRepo + file.filename;
 
-		// Splitto il percorso per /
+		// Si splitta il percorso per /
 		toSplit = file.filename;
-		toSplit.regex = "/";
-		split@StringUtils(toSplit)(splitResult);
-		
-		println@Console( " Requested: "+ file.fileName )();
 
-		// Per ogni cartella nel percorso
+		toSplit.regex = "/";
+
+		split@StringUtils( toSplit )( splitResult );
+
+		// Creazione di ogni cartella nel percorso
 		// (tranne per il file)
 		for(j=0, j<#splitResult.result-1, j++){
 
 			dir += splitResult.result[j] + "/";
 
-			// Riscrivo la cartella, se non c'è già
-			mkdir@File(dir)()
+			mkdir@File( dir )()
 		};
 
-		// Alla fine scrivo il file
-		writeFile@File(file)();
+		// Infine si scrive il file ricevuto
+		writeFile@File( file )();
 
-		// Pulisco la directory
+		// Pulizia della directory
 		undef( dir );
 
-		// Output di controllo
-		println@Console( " Received : "+file.filename+"\n" )()
+		// Stampa dei files ricevuti
+		println@Console( " Received : " + file.filename + "\n" )()
 	}
 }

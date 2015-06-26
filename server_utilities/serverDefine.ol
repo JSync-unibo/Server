@@ -1,10 +1,30 @@
 /*
 *
 * Author => Gruppo LOBSTER
-* Data => 21/06/2015
-* Parent => Server
+* Data => 26/06/2015
 * 
+* Parent => Server
+*
+* Servizio di define, i quali sono richiamati dal servizio
+* server, per eseguire i comandi seguenti:
+* - inizializzazione della visita delle cartelle
+* - visita ricorsiva delle cartelle
+* - operazione modulo per gestire l'incremento dei readers/writers
 */
+
+
+
+/*
+ * Inizializzazione della visita e chiamata ricorsiva
+ */ 
+define initializeVisita
+{
+
+	i = 1;
+
+	visita
+}
+
 
 
 /* 
@@ -24,8 +44,8 @@ define visita
 
 		newRoot.directory = cartelle.sottocartelle[i].abNome;
 
-		// Viene controllato se la cartella ha delle sottocartelle. Se non ha sottocartelle
-		// Viene salvato tutto il percorso per arrivare in quella cartella
+		// Viene controllato se la cartella ha delle sottocartelle, 
+		// se non le ha si salva tutto il percorso per arrivare in quella cartella
 		list@File( newRoot )( last );
 
 		if(#last.result == 0)  {
@@ -54,8 +74,8 @@ define visita
 		i++
 	};
 
-	// Se non si è arrivati alla fine dell'array cartelle, l'attributo mark della cartella viene
-	// Settato a true, e si richiama il metodo visita
+	// Se non si è arrivati alla fine di tutte le sottocartelle, l'attributo mark della cartella viene
+	// settato a true, e si richiama il metodo visita
 	if( is_defined( cartelle.sottocartelle[i].abNome )) {
 
 		cartelle.sottocartelle[i].mark = true;
@@ -69,17 +89,13 @@ define visita
 }
 
 
+
 /*
- * Inizializzazione della visita e chiamata ricorsiva
- */ 
-define initializeVisita
-{
-
-	// Predispongo la visita
-	i = 1;
-	visita
-}
-
+ * Definizione del modulo, nel quale si passa l'id del reader o writer e si esegue
+ * il modulo per individuare l'indice dove è contenuto il numero di readers/writers,
+ * da controllare per sapere se poter eseguire l'incremento oppure bloccarsi
+ * (se il numero di readers/writers è maggiore o uguale di 1)
+ */
 define modulo 
 {
 
