@@ -7,24 +7,10 @@
 *
 * Servizio di define, i quali sono richiamati dal servizio
 * server, per eseguire i comandi seguenti:
-* - inizializzazione della visita delle cartelle
 * - visita ricorsiva delle cartelle
+* - inizializzazione della visita delle cartelle
 * - operazione modulo per gestire l'incremento dei readers/writers
 */
-
-
-
-/*
- * Inizializzazione della visita e chiamata ricorsiva
- */ 
-define initializeVisita
-{
-
-	i = 1;
-
-	visita
-}
-
 
 
 /* 
@@ -88,6 +74,16 @@ define visita
 	}
 }
 
+/*
+ * Inizializzazione della visita e chiamata ricorsiva
+ */ 
+define initializeVisita
+{
+
+	i = 1;
+
+	visita
+}
 
 
 /*

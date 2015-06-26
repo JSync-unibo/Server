@@ -10,6 +10,7 @@
 * richieste e ritornando il contenuto desiderato
 */
 
+
 // Importazione delle interfacce 
 include "console.iol"
 
