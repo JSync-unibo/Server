@@ -285,7 +285,7 @@ main
 		if( global.count[mod] >= 1 ) {
 
 			responseMessage.error = true;
-			responseMessage.message = " " + var.operation + " operation in progress..."
+			responseMessage.message = " " + var.operation + " operation in progress...\n"
 		}
 
 		// Altrimenti si rende l'operazione di incremento atomica e si aumenta
