@@ -262,12 +262,7 @@ main
 						.message = " Success.\n"
 
 					}
-				};
-
-				// Tempo di attesa prima della conclusione della push 
-				// per testare la concorrenza
-				sleep@Time( 10000 )()
-
+				}
 			}
 		}
 
@@ -374,10 +369,6 @@ main
 				.message = " The repository is empty.\n"
 			}
 		};
-		
-		// Tempo di attesa prima che la pull si concluda
-		// per testare la concorrenza
-		sleep@Time(10000)();
 
 		// Stampa della struttura della repository
 		valueToPrettyString@StringUtils(responseMessage)(struc);
