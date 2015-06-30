@@ -276,7 +276,7 @@ main
 
 			mkdir@File( repoName )();
 
-			vers.filename = repo + "/vers.txt";
+			vers.filename = repoName + "/vers.txt";
 
 			// Si scrive nella repository il file di versione inviato dal Client
 			writeFile@File( vers )();
