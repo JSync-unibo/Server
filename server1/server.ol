@@ -266,7 +266,7 @@ main
 			}
 		}
 
-		// Se la repository non esiste, si crea
+		// Se la repository non esiste, la crea
 		else {
 
 			mkdir@File( repoName )();
@@ -279,7 +279,7 @@ main
 			with( responseMessage ){
 			  
 			  .error = false;
-			  .message = " Repository created\n"
+			  .message = " Success, repository created.\n"
 			
 			}
 
