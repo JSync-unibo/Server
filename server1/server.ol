@@ -209,50 +209,85 @@ main
 	 */
 	[ push( vers )( responseMessage ){
 
-		println@Console( vers.filename )();
+		// Si splitta il percorso per /
+		toSplit = vers.filename;
 
-		// Lettura del contenuto del file di versione
-		file.filename = vers.filename;
+		toSplit.regex = "/";
 
-		readFile@File( file )( readed.content );
+		split@StringUtils( toSplit )( splitResult );
 
-		// Se la versione del Client è minore di quella del Server
-		if(vers.content < readed.content) {
+		// Si rinomina la repository su cui fare la push
+		repoName = serverRepo + splitResult.result[1];
 
-			// Messaggio di errore (è necessaria la pull prima)
-			with( responseMessage ) {
+		// Controlla se la repository non sia già stata creata
+		exists@File( repoName )( exist );
 
-				.error = true;
-				.message = " The version is old, need to pull! \n"
+		// Se esiste, allora si confrontano i due file di versione
+		if( exist ) {
+
+			// Lettura del contenuto del file di versione
+			file.filename = vers.filename;
+
+			readFile@File( file )( readed.content );
+
+			// Se la versione del Client è minore di quella del Server
+			if(vers.content < readed.content) {
+
+				// Messaggio di errore (è necessaria la pull prima)
+				with( responseMessage ) {
+
+					.error = true;
+					.message = " The version is old, need to pull! \n"
+				}
+			}
+
+			// Se la versione del Client è maggiore o uguale
+			else {
+
+				// Trasformazione del contenuto in stringa
+				contenuto = string(readed.content);
+				
+				// Per rendere atomica l'operazione di incremento del file di versione
+				// si inserisce dentro il metodo synchronized
+				synchronized( increaseFileVersion ){
+
+					with( responseMessage ){
+
+						// Incremento del numero di versione e scrittura sul file
+						file.content = int(contenuto) +1;
+
+						writeFile@File( file )();
+							
+						.error = false;
+						.message = " Success.\n"
+
+					}
+				};
+
+				// Tempo di attesa prima della conclusione della push 
+				// per testare la concorrenza
+				sleep@Time( 10000 )()
+
 			}
 		}
 
-		// Se la versione del Client è maggiore o uguale
+		// Se la repository non esiste, si crea
 		else {
 
-			// Trasformazione del contenuto in stringa
-			contenuto = string(readed.content);
+			mkdir@File( repoName )();
+
+			vers.filename = repo + "/vers.txt";
+
+			// Si scrive nella repository il file di versione inviato dal Client
+			writeFile@File( vers )();
+
+			with( responseMessage ){
+			  
+			  .error = false;
+			  .message = " Repository created\n"
 			
-			// Per rendere atomica l'operazione di incremento del file di versione
-			// si inserisce dentro il metodo synchronized
-			synchronized( increaseFileVersion ){
+			}
 
-				with( responseMessage ){
-
-					// Incremento del numero di versione e scrittura sul file
-					file.content = int(contenuto) +1;
-
-					writeFile@File( file )();
-						
-					.error = false;
-					.message = " Success.\n"
-
-				}
-			};
-
-			// Tempo di attesa prima della conclusione della push 
-			// per testare la concorrenza
-			sleep@Time( 10000 )()
 		}
 
 	// Output del messaggio e pulizia della variabile ricevuta, 
